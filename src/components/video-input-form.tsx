@@ -9,8 +9,23 @@ import { getFFmpeg } from "@/lib/ffmpeg"
 import { fetchFile } from "@ffmpeg/util"
 import { api } from "@/lib/axios"
 
-export function VideoInputForm() {
+type Status = 'waiting' | 'converting' | 'uploading' | 'generating' | 'success'
+
+const statusMessages = {
+  converting: 'Converting...',
+  uploading: 'Uploading...',
+  generating: 'Generating...',
+  success: 'Success',
+}
+
+interface onVideoUploadedProps {
+  onVideoUploaded: (id: string) => void
+}
+
+export function VideoInputForm(props: onVideoUploadedProps) {
   const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [status, setStatus] = useState<Status>('waiting')
+
   const promptInputRef = useRef<HTMLTextAreaElement>(null)
 
   function handleVideoSelected(event: ChangeEvent<HTMLInputElement>) {
@@ -52,9 +67,9 @@ export function VideoInputForm() {
     return audioFile
   }
 
-
   async function handleUploadVideo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
     const prompt = promptInputRef.current?.value
 
     if (!videoFile) {
@@ -63,13 +78,25 @@ export function VideoInputForm() {
     }
 
     // convert video to audio
+    setStatus('converting')
     const audioFile = await convertVideoToAudio(videoFile)
 
     const data = new FormData()
     data.append('file', audioFile)
 
+    // upload audio file
+    setStatus('uploading')
     const response = await api.post('/videos', data)
-    console.log(response.data)
+    const videoId = response.data.id
+
+    // convert audio to text
+    setStatus('generating')
+    await api.post(`/videos/${videoId}/transcription`, {
+      prompt,
+    })
+
+    setStatus('success')
+    props.onVideoUploaded(videoId)
   }
 
   const previewURL = useMemo(() => {
@@ -102,16 +129,27 @@ export function VideoInputForm() {
         </Label>
         <Textarea
           ref={promptInputRef}
+          disabled={status !== 'waiting'}
           id="transcription_prompt"
           className="h-20 leading-relaxed"
           placeholder="Add words mentioned in the video above, separated by comma (,)"
         />
       </div>
+
       <Button
+        data-success={status === 'success'}
+        disabled={status !== 'waiting'}
         type="submit"
-        className="w-full"
+        className="w-full data-[success=true]:bg-emerald-800 transition-colors"
       >
-        Upload video<Upload className="w-4 h-4 ml-2" />
+        {status === 'waiting' ? (
+          <>
+            Upload video
+            <Upload className="w-4 h-4 ml-2" />
+          </>
+        ) :
+          statusMessages[status]}
+
       </Button>
       <input className="border rounded-md sr-only" type="file" id="video" accept="video/mp4" onChange={handleVideoSelected} />
     </form>
