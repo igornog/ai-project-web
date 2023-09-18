@@ -36,13 +36,13 @@ If you are developing a production application, we recommend updating the config
   <a href="LICENSE"><img  src="https://img.shields.io/static/v1?label=License&message=MIT&color=8257e5&labelColor=202024" alt="License"></a>
 </p>
 
-## 💻 Projeto
+## 💻 Project
 
-Aplicação que possibilita realizar upload de videos e por meio de IA, criar automaticamente títulos chamativos e descrições com um boa indexação.
+Application that allows you to upload videos and, through AI, automatically create eye-catching titles and descriptions with good indexing.
 
-## 📝 Licença
+## 📝 License
 
-Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+This project is under the MIT license. See the [LICENSE](LICENSE) file for more details.
 
 <!--START_SECTION:footer-->
 
