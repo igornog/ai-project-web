@@ -112,7 +112,7 @@ export function VideoInputForm(props: onVideoUploadedProps) {
         htmlFor="video"
       >
         {previewURL ? (
-          <video src={previewURL} controls={false} className="absolute inset-0 object-cover pointer-events-none" />
+          <video src={previewURL} controls={false} className="inset-0 object-contain pointer-events-none" />
         ) : (
           <>
             <FileVideo className="w-4 h-4" />
